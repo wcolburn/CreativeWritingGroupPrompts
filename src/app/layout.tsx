@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { UserContextProvider } from "@/context/userContext";
 
 export const metadata: Metadata = {
   title: "Creative Writing Group Prompts",
@@ -12,9 +13,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        {children}
-      </body>
+      <UserContextProvider>
+        <body>
+          {children}
+        </body>
+      </UserContextProvider>
     </html>
   );
 }
