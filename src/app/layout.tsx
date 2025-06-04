@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { UserContextProvider } from "@/context/userContext";
+import { GroupContextProvider } from "@/context/groupContext";
 
 export const metadata: Metadata = {
   title: "Creative Writing Group Prompts",
@@ -14,9 +15,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <UserContextProvider>
-        <body>
-          {children}
-        </body>
+        <GroupContextProvider>
+          <body>
+            {children}
+          </body>
+        </GroupContextProvider>
       </UserContextProvider>
     </html>
   );

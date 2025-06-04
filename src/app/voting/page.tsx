@@ -2,13 +2,13 @@
 
 import NavBar from "@/components/Navbar";
 import { useUserContext } from "@/context/userContext";
-import { getVotingContext, getPromptChooserContext } from "@/context/groupContext"
+import { useGroupContext } from "@/context/groupContext"
 import { Typography } from "@mui/material";
 
 export default function Voting() {
 
     const user  = useUserContext();
-    const isVoting = getVotingContext();
+    const { isVoting } = useGroupContext();
 
     return (
         <div>
@@ -36,7 +36,7 @@ function VotingBoard() {
 
 function VotingResults() {
 
-    const nextPromptChooser = getPromptChooserContext();
+    const { nextPromptChooser } = useGroupContext();
 
     return (
         <div>

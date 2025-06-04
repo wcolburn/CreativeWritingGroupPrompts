@@ -1,7 +1,7 @@
 'use client';
 
 import NavBar from "@/components/Navbar";
-import { getVotingContext } from "@/context/groupContext";
+import { useGroupContext } from "@/context/groupContext";
 import { Box, Button, Link, Stack, Typography } from "@mui/material";
 
 export default function CurrentPrompt() {
@@ -26,7 +26,7 @@ export default function CurrentPrompt() {
 }
 
 function DisplayCurrentPrompt() {
-    const currentPrompt = getVotingContext();
+    const { currentPrompt } = useGroupContext();
 
     return (
         <Stack
@@ -47,7 +47,7 @@ function DisplayCurrentPrompt() {
 
 function SubmitStory() {
 
-    const currentPromptId = getVotingContext();
+    const { currentPromptId } = useGroupContext();
 
     return (
         <Link href={`/submit-story/${currentPromptId}`}>
