@@ -1,9 +1,11 @@
+'use client';
+
 import NavBar from "@/components/Navbar";
 import { useUserContext } from "@/context/userContext";
 import { getVotingContext, getPromptChooserContext } from "@/context/groupContext"
 import { Typography } from "@mui/material";
 
-function Voting() {
+export default function Voting() {
 
     const user  = useUserContext();
     const isVoting = getVotingContext();
