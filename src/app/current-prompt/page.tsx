@@ -2,7 +2,7 @@
 
 import NavBar from "@/components/Navbar";
 import { useGroupContext } from "@/context/groupContext";
-import { Box, Button, Card, Divider, Link, Stack, Typography } from "@mui/material";
+import { Box, Button, Card, CardActionArea, Divider, Link, Stack, Typography } from "@mui/material";
 import { Story } from "@/types/story";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
@@ -77,9 +77,11 @@ function SubmittedCurrentPromptStories() {
                 stories ? (
                     stories.map((s: Story, i)=>
                         <div onClick={() => handleStoryClick(s)} key={i}>
-                            <Card sx={{ paddingX: 5, paddingY: 2}}>
+                            <Card>
+                                <CardActionArea sx={{ paddingX: 5, paddingY: 2}}>
                                     <Typography variant="h5">{s.title}</Typography>
                                     <Typography variant="body1">{s.author}</Typography>
+                                </CardActionArea>
                             </Card>
                         </div>
                     )
