@@ -25,6 +25,9 @@ export function UserContextProvider({ children } : { children: ReactNode}) {
 
     async function findUser(user: AuthUser) {
         setUser(user);
+        if (user) {
+            writeUser(user);
+        }
     }
 
     return (
@@ -48,4 +51,13 @@ export function useUserContext() {
     const context = useContext(UserContext);
     console.log(context?.user)
     return context?.user;
+}
+
+function writeUser(user: AuthUser) {
+    if (user) {
+        setDoc(doc(db, "users", user.uid), {
+            name: user.displayName,
+            id: user.uid
+        });
+}
 }

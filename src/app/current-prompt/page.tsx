@@ -2,9 +2,10 @@
 
 import NavBar from "@/components/Navbar";
 import { useGroupContext } from "@/context/groupContext";
-import { Box, Button, Link, Stack, Typography } from "@mui/material";
+import { Box, Button, Card, Divider, Link, Stack, Typography } from "@mui/material";
 import { Story } from "@/types/story";
 import { useEffect, useState } from "react";
+import { useUserContext } from "@/context/userContext";
 
 export default function CurrentPrompt() {
     return (
@@ -65,10 +66,14 @@ function SubmittedCurrentPromptStories() {
 
     return (
         <div>
+            <Divider />
             {
                 stories ? (
-                    stories.map((s: Story)=>
-                        <Typography>{s.title}</Typography>
+                    stories.map((s: Story, i)=>
+                        <Card key={i}>
+                            <Typography variant="h5">{s.title}</Typography>
+                            <Typography variant="body1">{s.author}</Typography>
+                        </Card>
                     )
                 ): (
                     <div></div>

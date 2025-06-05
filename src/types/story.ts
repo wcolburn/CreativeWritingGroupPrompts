@@ -1,6 +1,6 @@
 export type Story = {
     promptId: string
-    authorId: string,
+    author: string,
     title: string,
     body: string
 }

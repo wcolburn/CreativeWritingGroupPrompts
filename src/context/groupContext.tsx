@@ -15,7 +15,8 @@ const GroupContext = createContext<{
     currentPrompt: string,
     currentPromptId: string,
     addNewStory: Function,
-    stories: Story[] | null
+    stories: Story[] | null,
+    getAuthorFromId: Function
 } | undefined>(undefined);
 
 export function GroupContextProvider({ children } : { children: ReactNode}) {
@@ -39,8 +40,12 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
         writeNewStory(title, body, promptId, user);
     }
 
+    async function getAuthorFromId(id: string) {
+        return await fetchAuthorFromId(id)
+    }
+
     return (
-        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, currentPromptId, addNewStory, stories }}>
+        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, currentPromptId, addNewStory, stories, getAuthorFromId }}>
             {children}
         </GroupContext.Provider>
     )
@@ -71,7 +76,30 @@ function writeNewStory(title: string, body: string, promptId: string, user: Auth
 
 async function fetchStories(setStories: Function) {
     const querySnapshot = await getDocs(collection(db, "stories"));
-    setStories(
-        querySnapshot.docs.map((doc) => doc.data())
-    )
+    if (querySnapshot.docs) {
+        const data = querySnapshot.docs.map((doc) => doc.data() as Story)
+        for (const story of data) {
+            story.author = await fetchAuthorFromId(story.author)
+        }
+        setStories(data)
+    } else {
+        setStories([]);
+    }
+    // setStories(
+    //     querySnapshot.docs.map((doc) => doc.data())
+    // )
+}
+
+async function fetchAuthorFromId(id: string) {
+    console.log("Author id is " + id)
+    const docRef = doc(db, "users", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        console.log("Got it!")
+        const data = docSnap.data();
+        return data.name;
+    } else {
+        return null;
+    }
 }
