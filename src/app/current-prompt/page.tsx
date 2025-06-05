@@ -4,6 +4,7 @@ import NavBar from "@/components/Navbar";
 import { useGroupContext } from "@/context/groupContext";
 import { Box, Button, Card, Divider, Link, Stack, Typography } from "@mui/material";
 import { Story } from "@/types/story";
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { useUserContext } from "@/context/userContext";
 
@@ -62,7 +63,12 @@ function SubmitStory() {
 }
 
 function SubmittedCurrentPromptStories() {
+    const router = useRouter();
     const { stories } = useGroupContext();
+
+    function handleStoryClick(story: Story) {
+        router.push(`/story/${story.id}`)
+    }
 
     return (
         <div>
@@ -70,10 +76,12 @@ function SubmittedCurrentPromptStories() {
             {
                 stories ? (
                     stories.map((s: Story, i)=>
-                        <Card key={i}>
-                            <Typography variant="h5">{s.title}</Typography>
-                            <Typography variant="body1">{s.author}</Typography>
-                        </Card>
+                        <div onClick={() => handleStoryClick(s)} key={i}>
+                            <Card sx={{ paddingX: 5, paddingY: 2}}>
+                                    <Typography variant="h5">{s.title}</Typography>
+                                    <Typography variant="body1">{s.author}</Typography>
+                            </Card>
+                        </div>
                     )
                 ): (
                     <div></div>

@@ -4,6 +4,7 @@ import { createContext, useContext, useState, ReactNode, useEffect } from "react
 // Database
 import { db } from "../app/firebase";
 import { getDoc, setDoc, doc, collection, getDocs } from "firebase/firestore";
+ import { v4 as uuid } from 'uuid';
 import { AuthUser } from "./userContext";
 import { Story } from "@/types/story";
 
@@ -67,6 +68,7 @@ function writeNewStory(title: string, body: string, promptId: string, user: Auth
 
     const newStory = doc(collection(db, "stories"));
     setDoc(newStory, {
+        id: uuid(),
         promptId: promptId,
         author: user?.uid,
         title: title,
@@ -78,6 +80,7 @@ async function fetchStories(setStories: Function) {
     const querySnapshot = await getDocs(collection(db, "stories"));
     if (querySnapshot.docs) {
         const data = querySnapshot.docs.map((doc) => doc.data() as Story)
+        // Swap authorId out for author name
         for (const story of data) {
             story.author = await fetchAuthorFromId(story.author)
         }
@@ -85,18 +88,13 @@ async function fetchStories(setStories: Function) {
     } else {
         setStories([]);
     }
-    // setStories(
-    //     querySnapshot.docs.map((doc) => doc.data())
-    // )
 }
 
 async function fetchAuthorFromId(id: string) {
-    console.log("Author id is " + id)
     const docRef = doc(db, "users", id);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-        console.log("Got it!")
         const data = docSnap.data();
         return data.name;
     } else {
