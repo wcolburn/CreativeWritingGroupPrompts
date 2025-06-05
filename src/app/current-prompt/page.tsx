@@ -3,6 +3,8 @@
 import NavBar from "@/components/Navbar";
 import { useGroupContext } from "@/context/groupContext";
 import { Box, Button, Link, Stack, Typography } from "@mui/material";
+import { Story } from "@/types/story";
+import { useEffect, useState } from "react";
 
 export default function CurrentPrompt() {
     return (
@@ -15,9 +17,11 @@ export default function CurrentPrompt() {
                     spacing={1}
                 >
 
-                <DisplayCurrentPrompt />
+                    <DisplayCurrentPrompt />
 
-                <SubmitStory />
+                    <SubmitStory />
+
+                    <SubmittedCurrentPromptStories />
                 
                 </Stack>
             </main>
@@ -53,5 +57,23 @@ function SubmitStory() {
         <Link href={`/submit-story/${currentPromptId}`}>
             <Button variant="contained">Submit Story</Button>
         </Link>
+    )
+}
+
+function SubmittedCurrentPromptStories() {
+    const { stories } = useGroupContext();
+
+    return (
+        <div>
+            {
+                stories ? (
+                    stories.map((s: Story)=>
+                        <Typography>{s.title}</Typography>
+                    )
+                ): (
+                    <div></div>
+                )
+            }
+        </div>
     )
 }

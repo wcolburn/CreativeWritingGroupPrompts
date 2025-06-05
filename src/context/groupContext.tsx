@@ -3,8 +3,9 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 // Database
 import { db } from "../app/firebase";
-import { getDoc, setDoc, doc, collection } from "firebase/firestore";
+import { getDoc, setDoc, doc, collection, getDocs } from "firebase/firestore";
 import { AuthUser } from "./userContext";
+import { Story } from "@/types/story";
 
 import { useUserContext } from "./userContext";
 
@@ -14,6 +15,7 @@ const GroupContext = createContext<{
     currentPrompt: string,
     currentPromptId: string,
     addNewStory: Function,
+    stories: Story[] | null
 } | undefined>(undefined);
 
 export function GroupContextProvider({ children } : { children: ReactNode}) {
@@ -23,13 +25,22 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
     const [nextPromptChooser, setNextPromptChooser] = useState<string>("");
     const [currentPrompt, setCurrentPrompt] = useState<string>("");
     const [currentPromptId, setCurrentPromptId] = useState<string>("");
+    const [stories, setStories] = useState<Story[] | null>(null);
+
+    useEffect(()=> {
+        fetchStories(setStories);
+    }, [])
+
+    useEffect(()=>{
+        console.log(stories)
+    }, [stories])
 
     function addNewStory(title: string, body: string, promptId: string) {
         writeNewStory(title, body, promptId, user);
     }
 
     return (
-        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, currentPromptId, addNewStory }}>
+        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, currentPromptId, addNewStory, stories }}>
             {children}
         </GroupContext.Provider>
     )
@@ -56,4 +67,11 @@ function writeNewStory(title: string, body: string, promptId: string, user: Auth
         title: title,
         body: body
     });
+}
+
+async function fetchStories(setStories: Function) {
+    const querySnapshot = await getDocs(collection(db, "stories"));
+    setStories(
+        querySnapshot.docs.map((doc) => doc.data())
+    )
 }
