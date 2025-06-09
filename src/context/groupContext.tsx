@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 // Database
 import { db } from "../app/firebase";
-import { getDoc, setDoc, doc, collection, getDocs } from "firebase/firestore";
+import { getDoc, setDoc, doc, collection, getDocs, where, query } from "firebase/firestore";
  import { v4 as uuid } from 'uuid';
 import { AuthUser } from "./userContext";
 import { Story } from "@/types/story";
@@ -17,7 +17,8 @@ const GroupContext = createContext<{
     currentPromptId: string,
     addNewStory: Function,
     stories: Story[] | null,
-    getAuthorFromId: Function
+    getAuthorFromId: Function,
+    getStory: Function
 } | undefined>(undefined);
 
 export function GroupContextProvider({ children } : { children: ReactNode}) {
@@ -45,8 +46,12 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
         return await fetchAuthorFromId(id)
     }
 
+    async function getStory(id: string) {
+        return await fetchStoryById(id);
+    }
+
     return (
-        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, currentPromptId, addNewStory, stories, getAuthorFromId }}>
+        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, currentPromptId, addNewStory, stories, getAuthorFromId, getStory }}>
             {children}
         </GroupContext.Provider>
     )
@@ -87,6 +92,19 @@ async function fetchStories(setStories: Function) {
         setStories(data)
     } else {
         setStories([]);
+    }
+}
+
+async function fetchStoryById(storyId: string) {
+    const storiesCollection = collection(db, "stories");
+    const storyQuery = query(storiesCollection, where("id", "==", storyId));
+    const querySnapshot = await getDocs(storyQuery);
+
+    if (!querySnapshot.empty) {
+        const story = querySnapshot.docs[0];
+        return story.data() as Story;
+    } else {
+        return null;
     }
 }
 
