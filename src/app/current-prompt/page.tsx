@@ -53,10 +53,10 @@ function DisplayCurrentPrompt() {
 
 function SubmitStory() {
 
-    const { currentPromptId } = useGroupContext();
+    const { currentPrompt } = useGroupContext();
 
     return (
-        <Link href={`/submit-story/${currentPromptId}`}>
+        <Link href={`/submit-story/${currentPrompt?.id}`}>
             <Button variant="contained">Submit Story</Button>
         </Link>
     )

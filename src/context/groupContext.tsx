@@ -9,12 +9,12 @@ import { AuthUser } from "./userContext";
 import { Story } from "@/types/story";
 
 import { useUserContext } from "./userContext";
+import { Prompt } from "@/types/prompt";
 
 const GroupContext = createContext<{
     isVoting: boolean,
     nextPromptChooser: string,
-    currentPrompt: string,
-    currentPromptId: string,
+    currentPrompt: Prompt | null,
     addNewStory: Function,
     stories: Story[] | null,
     getAuthorFromId: Function,
@@ -26,17 +26,13 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
 
     const [isVoting, setIsVoting] = useState<boolean>(false);
     const [nextPromptChooser, setNextPromptChooser] = useState<string>("");
-    const [currentPrompt, setCurrentPrompt] = useState<string>("");
-    const [currentPromptId, setCurrentPromptId] = useState<string>("");
+    const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
     const [stories, setStories] = useState<Story[] | null>(null);
 
     useEffect(()=> {
         fetchStories(setStories);
+        fetchCurrentPrompt(setCurrentPrompt)
     }, [])
-
-    useEffect(()=>{
-        console.log(stories)
-    }, [stories])
 
     function addNewStory(title: string, body: string, promptId: string) {
         writeNewStory(title, body, promptId, user);
@@ -51,7 +47,7 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
     }
 
     return (
-        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, currentPromptId, addNewStory, stories, getAuthorFromId, getStory }}>
+        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, addNewStory, stories, getAuthorFromId, getStory }}>
             {children}
         </GroupContext.Provider>
     )
@@ -115,6 +111,17 @@ async function fetchAuthorFromId(id: string) {
     if (docSnap.exists()) {
         const data = docSnap.data();
         return data.name;
+    } else {
+        return null;
+    }
+}
+
+async function fetchCurrentPrompt(setPrompt: Function) {
+    const querySnapshot = await getDocs(collection(db, "prompts"));
+    if (querySnapshot.docs) {
+        const prompts = querySnapshot.docs.map((doc) => doc.data() as Prompt);
+        prompts.sort((a, b) => b.creation.getTime() - a.creation.getTime());
+        setPrompt(prompts[0]);
     } else {
         return null;
     }
