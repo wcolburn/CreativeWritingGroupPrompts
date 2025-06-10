@@ -13,7 +13,7 @@ import { Prompt } from "@/types/prompt";
 
 const GroupContext = createContext<{
     isVoting: boolean,
-    nextPromptChooser: string,
+    nextPromptChooser: string | null,
     currentPrompt: Prompt | null,
     addNewStory: Function,
     stories: Story[] | null,
@@ -25,14 +25,23 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
     const user  = useUserContext();
 
     const [isVoting, setIsVoting] = useState<boolean>(false);
-    const [nextPromptChooser, setNextPromptChooser] = useState<string>("");
+    const [nextPromptChooser, setNextPromptChooser] = useState<string | null>(null);
     const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
     const [stories, setStories] = useState<Story[] | null>(null);
+    const [promptChoices, setPromptChoices] = useState<string[]>([]);
 
     useEffect(()=> {
         fetchStories(setStories);
         fetchCurrentPrompt(setCurrentPrompt)
+        fetchPromptChooser(setNextPromptChooser)
+        decideIfVoting(setIsVoting)
     }, [])
+
+    useEffect(()=>{
+        if (isVoting && nextPromptChooser == null) {
+            selectPromptChooser(setNextPromptChooser)
+        }
+    }, [isVoting])
 
     function addNewStory(title: string, body: string, promptId: string) {
         writeNewStory(title, body, promptId, user);
@@ -118,11 +127,55 @@ async function fetchAuthorFromId(id: string) {
 
 async function fetchCurrentPrompt(setPrompt: Function) {
     const querySnapshot = await getDocs(collection(db, "prompts"));
-    if (querySnapshot.docs) {
+    if (!querySnapshot.empty) {
         const prompts = querySnapshot.docs.map((doc) => doc.data() as Prompt);
         prompts.sort((a, b) => b.creation.getTime() - a.creation.getTime());
         setPrompt(prompts[0]);
     } else {
         return null;
     }
+}
+
+function decideIfVoting(setIsVoting: Function) {
+    const now = new Date(Date.now())
+    const day = now.getDay()
+    // If Saturday (6), then voting is open
+    if (day == 1)  {
+        setIsVoting(true);
+    } else {
+        setIsVoting(false);
+    }
+}
+
+async function selectPromptChooser(setChooser: Function) {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    if (!querySnapshot.empty) {
+        const users = querySnapshot.docs.map((doc) => doc.data() as AuthUser);
+        const randomIndex = Math.floor(Math.random() * users.length);
+        console.log("Random index: " + randomIndex)
+        const selectedUserId = users[randomIndex]?.uid;
+        setChooser(selectedUserId)
+        setPromptChooserInDb(selectedUserId);
+    }
+}
+
+function setPromptChooserInDb(id: string | undefined) {
+    if (id) {
+        const groupDoc = doc(collection(db, "group"));
+        setDoc(groupDoc, {
+            promptChooser: id
+        });
+    }
+}
+
+async function fetchPromptChooser(setChooser: Function) {
+    const querySnapshot = await getDocs(collection(db, "group"));
+     if (!querySnapshot.empty) {
+        const groupData = querySnapshot.docs[0].data();
+        const currentChooser = groupData.promptChooser;
+        if (currentChooser) {
+            setChooser(currentChooser);
+        }
+    }
+    setChooser(null);
 }
