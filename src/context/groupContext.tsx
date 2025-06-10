@@ -19,7 +19,8 @@ const GroupContext = createContext<{
     stories: Story[] | null,
     getAuthorFromId: Function,
     getStory: Function,
-    setCurrentPrompt: Function
+    setCurrentPrompt: Function,
+    addNewPrompt: Function
 } | undefined>(undefined);
 
 export function GroupContextProvider({ children } : { children: ReactNode}) {
@@ -43,15 +44,11 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
         }
     }, [isVoting])
 
-    useEffect(()=>{
-        console.log("Middleware chooser: " + nextPromptChooser)
-    }, [nextPromptChooser])
-
-    useEffect(()=>{
-        if (currentPrompt) {
-            writeCurrentPrompt(currentPrompt);
-        }
-    }, [currentPrompt])
+    // useEffect(()=>{
+    //     if (currentPrompt) {
+    //         writeCurrentPrompt(currentPrompt);
+    //     }
+    // }, [currentPrompt])
 
     function addNewStory(title: string, body: string, promptId: string) {
         writeNewStory(title, body, promptId, user);
@@ -65,8 +62,13 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
         return await fetchStoryById(id);
     }
 
+    async function addNewPrompt(prompt: string) {
+        const newCurrentPrompt: Prompt = await writeCurrentPrompt(prompt);
+        setCurrentPrompt(newCurrentPrompt);
+    }
+
     return (
-        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, addNewStory, stories, getAuthorFromId, getStory, setCurrentPrompt }}>
+        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, addNewStory, stories, getAuthorFromId, getStory, setCurrentPrompt, addNewPrompt }}>
             {children}
         </GroupContext.Provider>
     )
@@ -147,13 +149,15 @@ async function fetchCurrentPrompt(setPrompt: Function) {
     }
 }
 
-async function writeCurrentPrompt(prompt: Prompt | null) {
-    const newPrompt = doc(collection(db, "prompts"));
-    setDoc(newPrompt, {
+async function writeCurrentPrompt(prompt: string) {
+    const promptDoc = doc(collection(db, "prompts"));
+    const newPrompt: Prompt = {
         id: uuid(),
-        prompt: prompt?.prompt,
+        prompt: prompt,
         creation: Date.now()
-    });
+    }
+    setDoc(promptDoc, newPrompt);
+    return newPrompt;
 }
 
 function decideIfVoting(setIsVoting: Function) {

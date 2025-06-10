@@ -29,12 +29,12 @@ export default function Voting() {
 
 function NextPromptInputForm() {
 
-    const { nextPromptChooser, setCurrentPrompt } = useGroupContext();
+    const { nextPromptChooser, addNewPrompt } = useGroupContext();
     const user  = useUserContext();
     const [prompt, setPrompt] = useState<string>("");
 
     function handleSubmit() {
-        setCurrentPrompt(prompt);
+        addNewPrompt(prompt);
     }
 
     return (
