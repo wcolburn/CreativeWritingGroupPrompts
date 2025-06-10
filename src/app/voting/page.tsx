@@ -68,8 +68,8 @@ function DisplayPrompt() {
 
     return (
         <div>
-            <Typography>This prompt won:</Typography>
-            <Typography>{currentPrompt}</Typography>
+            <Typography >Winner:</Typography>
+            <Typography>{currentPrompt?.prompt}</Typography>
             <Typography>Next person to vote is: {nextPromptChooser}</Typography>
             <Typography>Come back Friday to vote on the next prompt!</Typography>
         </div>
