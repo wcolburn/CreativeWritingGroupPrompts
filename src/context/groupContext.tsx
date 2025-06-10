@@ -14,11 +14,12 @@ import { Prompt } from "@/types/prompt";
 const GroupContext = createContext<{
     isVoting: boolean,
     nextPromptChooser: string | null,
-    currentPrompt: Prompt | null,
+    currentPrompt: string | null,
     addNewStory: Function,
     stories: Story[] | null,
     getAuthorFromId: Function,
-    getStory: Function
+    getStory: Function,
+    setCurrentPrompt: Function
 } | undefined>(undefined);
 
 export function GroupContextProvider({ children } : { children: ReactNode}) {
@@ -26,9 +27,8 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
 
     const [isVoting, setIsVoting] = useState<boolean>(false);
     const [nextPromptChooser, setNextPromptChooser] = useState<string | null>(null);
-    const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
+    const [currentPrompt, setCurrentPrompt] = useState<string | null>(null);
     const [stories, setStories] = useState<Story[] | null>(null);
-    const [promptChoices, setPromptChoices] = useState<string[]>([]);
 
     useEffect(()=> {
         fetchStories(setStories);
@@ -43,6 +43,16 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
         }
     }, [isVoting])
 
+    useEffect(()=>{
+        console.log("Middleware chooser: " + nextPromptChooser)
+    }, [nextPromptChooser])
+
+    useEffect(()=>{
+        if (currentPrompt) {
+            writeCurrentPrompt(currentPrompt);
+        }
+    }, [currentPrompt])
+
     function addNewStory(title: string, body: string, promptId: string) {
         writeNewStory(title, body, promptId, user);
     }
@@ -56,7 +66,7 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
     }
 
     return (
-        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, addNewStory, stories, getAuthorFromId, getStory }}>
+        <GroupContext.Provider value={{ isVoting, nextPromptChooser, currentPrompt, addNewStory, stories, getAuthorFromId, getStory, setCurrentPrompt }}>
             {children}
         </GroupContext.Provider>
     )
@@ -129,11 +139,20 @@ async function fetchCurrentPrompt(setPrompt: Function) {
     const querySnapshot = await getDocs(collection(db, "prompts"));
     if (!querySnapshot.empty) {
         const prompts = querySnapshot.docs.map((doc) => doc.data() as Prompt);
-        prompts.sort((a, b) => b.creation.getTime() - a.creation.getTime());
+        prompts.sort((a, b) => b.creation.getTime() - a.creation.getTime()); // Sort so most recent is first in the array
         setPrompt(prompts[0]);
     } else {
         return null;
     }
+}
+
+async function writeCurrentPrompt(prompt: string | null) {
+    const newPrompt = doc(collection(db, "prompts"));
+    setDoc(newPrompt, {
+        id: uuid(),
+        prompt: prompt,
+        creation: Date.now()
+    });
 }
 
 function decideIfVoting(setIsVoting: Function) {
@@ -176,6 +195,7 @@ async function fetchPromptChooser(setChooser: Function) {
         if (currentChooser) {
             setChooser(currentChooser);
         }
+    } else{
+        setChooser(null);
     }
-    setChooser(null);
 }

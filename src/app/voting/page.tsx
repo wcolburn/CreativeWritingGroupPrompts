@@ -3,44 +3,73 @@
 import NavBar from "@/components/Navbar";
 import { useUserContext } from "@/context/userContext";
 import { useGroupContext } from "@/context/groupContext"
-import { Typography } from "@mui/material";
+import { Button, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Prompt } from "@/types/prompt";
 
 export default function Voting() {
 
-    const user  = useUserContext();
-    const { isVoting } = useGroupContext();
+    const { currentPrompt } = useGroupContext();
 
     return (
         <div>
             <header> <NavBar /> </header>
             <main>
                 {
-                    isVoting ? (
-                        // If current voting, display voting board
-                        <VotingBoard />
+                    currentPrompt ? (
+                        <DisplayPrompt />
                     ) : (
-                        // Else, display winning prompt and say next voting time
-                        <VotingResults />
-                    )
+                        <NextPromptInputForm />
+                    )                 
                 }
             </main>
         </div>
     );
 }
 
-function VotingBoard() {
-    return (
-        <div>Vote please</div>
-    )
-}
+function NextPromptInputForm() {
 
-function VotingResults() {
+    const { nextPromptChooser, setCurrentPrompt } = useGroupContext();
+    const user  = useUserContext();
+    const [prompt, setPrompt] = useState<string>("");
 
-    const { nextPromptChooser } = useGroupContext();
+    function handleSubmit() {
+        setCurrentPrompt(prompt);
+    }
 
     return (
         <div>
-            <Typography>This prompt won!</Typography>
+            {
+                user?.uid == nextPromptChooser ? (
+                        <div>
+                            <Typography>You are the prompt chooser for this week! Please enter your prompt in the field below and click Submit.</Typography>
+                            <TextField
+                                id="Prompt"
+                                variant='standard'
+                                value={prompt}
+                                fullWidth
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                    setPrompt(event.target.value);
+                                }}
+                            />
+                            <Button variant="contained" onClick={handleSubmit}>Submit Story</Button>
+                        </div>
+                ) : (
+                    <Typography>Hang tight! The prompt chooser for this week is working on it.</Typography>
+                )
+            }
+        </div>
+    )
+}
+
+function DisplayPrompt() {
+
+    const { nextPromptChooser, currentPrompt } = useGroupContext();
+
+    return (
+        <div>
+            <Typography>This prompt won:</Typography>
+            <Typography>{currentPrompt}</Typography>
             <Typography>Next person to vote is: {nextPromptChooser}</Typography>
             <Typography>Come back Friday to vote on the next prompt!</Typography>
         </div>
