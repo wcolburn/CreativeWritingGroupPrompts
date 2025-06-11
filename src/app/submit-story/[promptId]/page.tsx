@@ -17,8 +17,10 @@ export default function SubmitStory() {
     const [body, setBody] = useState<string>("");
 
     function handleSubmit() {
-        addNewStory(title, body, promptId);
-        router.push('/current-prompt')
+        if (promptId) {
+            addNewStory(title, body, promptId);
+            router.push('/current-prompt')
+        }
     }
 
     return (
