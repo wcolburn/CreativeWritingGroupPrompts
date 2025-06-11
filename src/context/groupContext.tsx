@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 // Database
 import { db } from "../app/firebase";
-import { getDoc, setDoc, doc, collection, getDocs, where, query } from "firebase/firestore";
+import { getDoc, setDoc, doc, collection, getDocs, where, query, updateDoc } from "firebase/firestore";
  import { v4 as uuid } from 'uuid';
 import { AuthUser } from "./userContext";
 import { Story } from "@/types/story";
@@ -31,12 +31,14 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
     const [nextPromptChooser, setNextPromptChooser] = useState<PromptChooser | null>(null);
     const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
     const [stories, setStories] = useState<Story[] | null>(null);
+    const [prepareForVoting, setPrepareForVoting] = useState<boolean | null>(null);
 
     useEffect(()=> {
         fetchStories(setStories);
         fetchCurrentPrompt(setCurrentPrompt)
         fetchPromptChooser(setNextPromptChooser)
         decideIfVoting(setIsVoting)
+        decideIfPrepareForVoting(setPrepareForVoting)
     }, [])
 
     useEffect(()=>{
@@ -45,6 +47,11 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
         }
     }, [isVoting])
 
+    useEffect(()=>{
+        if (prepareForVoting && isVoting) {
+            setCurrentPrompt(null);
+        }
+    }, [prepareForVoting, isVoting])
 
     function addNewStory(title: string, body: string, promptId: string) {
         writeNewStory(title, body, promptId, user);
@@ -161,10 +168,42 @@ function decideIfVoting(setIsVoting: Function) {
     const now = new Date(Date.now())
     const day = now.getDay()
     // If Saturday (6), then voting is open
-    if (day == 2)  {
+    if (day == 6)  {
         setIsVoting(true);
     } else {
         setIsVoting(false);
+    }
+}
+
+async function decideIfPrepareForVoting(setPrepareForVoting: Function) {
+    const querySnapshot = await getDocs(collection(db, "group"));
+    if (!querySnapshot.empty) {
+        const groupData = querySnapshot.docs[0].data();
+        const prepareForVoting = groupData.prepareForVoting;
+        if (prepareForVoting == true) {
+            setPrepareForVoting(true);
+        } else {
+            const now = new Date(Date.now())
+            const day = now.getDay()
+            // If Saturday (6), then voting is open
+            if (day == 5)  {
+                prepareForVoting(true);
+                writePrepareForVotingInDb();
+            }
+            setPrepareForVoting(false);
+        }
+    }
+}
+
+async function writePrepareForVotingInDb() {
+    const groupCollection = collection(db, "group");
+    const groupSnapshot = await getDocs(groupCollection);
+    if (!groupSnapshot.empty) {
+        const metadata = groupSnapshot.docs[0].ref;
+
+        await updateDoc(metadata, {
+            prepareForVoting: true
+        });
     }
 }
 
@@ -186,12 +225,17 @@ async function selectPromptChooser(setChooser: Function) {
     }
 }
 
-function setPromptChooserInDb(id: string | undefined) {
+async function setPromptChooserInDb(id: string | undefined) {
     if (id) {
-        const groupDoc = doc(collection(db, "group"));
-        setDoc(groupDoc, {
-            promptChooser: id
-        });
+        const groupCollection = collection(db, "group");
+        const groupSnapshot = await getDocs(groupCollection);
+        if (!groupSnapshot.empty) {
+            const metadata = groupSnapshot.docs[0].ref;
+
+            await updateDoc(metadata, {
+                promptChooser: id
+            });
+        }
     }
 }
 

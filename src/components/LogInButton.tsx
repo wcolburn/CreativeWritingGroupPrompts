@@ -19,7 +19,7 @@ export function LogInButton() {
         <div>
             {user ? (
                 <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 20 }}>
-                    <ProfileLink />
+                    {/* <ProfileLink /> */}
                     <button onClick={handleLogout}>Log Out</button>
                     <UserProfilePicture user={user} />
                 </div>
