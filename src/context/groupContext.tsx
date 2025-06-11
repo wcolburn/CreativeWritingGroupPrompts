@@ -61,8 +61,12 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
         return await fetchAuthorFromId(id)
     }
 
-    async function getStory(id: string) {
-        return await fetchStoryById(id);
+    async function getStory(id: string | undefined) {
+        if (id) {
+            return await fetchStoryById(id);
+        } else {
+            return null;
+        }
     }
 
     async function addNewPrompt(prompt: string) {
