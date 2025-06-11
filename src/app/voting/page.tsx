@@ -78,7 +78,7 @@ function DisplayPrompt() {
             <DisplayCurrentPrompt />
             <Box height={10}/>
             <Typography>Next person to vote is: {nextPromptChooser?.name}</Typography>
-            <Typography>Come back Friday to vote on the next prompt!</Typography>
+            <Typography>Come back Saturday to vote on the next prompt!</Typography>
         </Stack>
     )
 }
