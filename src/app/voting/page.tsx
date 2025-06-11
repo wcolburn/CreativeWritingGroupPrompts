@@ -4,8 +4,7 @@ import NavBar from "@/components/Navbar";
 import { useUserContext } from "@/context/userContext";
 import { useGroupContext } from "@/context/groupContext"
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Prompt } from "@/types/prompt";
+import { useState } from "react";
 import { DisplayCurrentPrompt } from "@/components/DisplayCurrentPrompt";
 
 export default function Voting() {

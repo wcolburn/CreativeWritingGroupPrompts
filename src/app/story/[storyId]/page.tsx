@@ -3,7 +3,7 @@
 import { useGroupContext } from "@/context/groupContext";
 import { useEffect, useState } from "react";
 import { Story } from "@/types/story";
-import { Box, Stack, TextField, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import NavBar from "@/components/Navbar";
 import { useParams } from "next/navigation";
 

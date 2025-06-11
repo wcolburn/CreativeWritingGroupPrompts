@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { AppBar, Toolbar, Typography,  Container, Box } from '@mui/material'
+import { AppBar, Toolbar, Typography,  Container } from '@mui/material'
 
 import { LogInButton } from "./LogInButton";
 

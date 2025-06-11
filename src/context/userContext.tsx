@@ -6,7 +6,7 @@ import { auth } from "../app/firebase";
 import { signOut, signInWithPopup, GoogleAuthProvider, User } from "firebase/auth";
 // Database
 import { db } from "../app/firebase";
-import { getDoc, setDoc, doc } from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
 
 export type AuthUser = User | null;
 

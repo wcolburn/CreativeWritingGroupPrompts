@@ -1,6 +1,5 @@
 'use client';
 import { useUserContext, logOut, googleSignIn } from "@/context/userContext";
-import { ProfileLink } from "./Navbar";
 import { UserProfilePicture } from "./userProfilePicture";
 
 export function LogInButton() {
