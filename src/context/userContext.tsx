@@ -59,5 +59,5 @@ function writeUser(user: AuthUser) {
             name: user.displayName,
             id: user.uid
         });
-}
+    }
 }

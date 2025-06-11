@@ -2,11 +2,10 @@
 
 import NavBar from "@/components/Navbar";
 import { useGroupContext } from "@/context/groupContext";
-import { Box, Button, Card, CardActionArea, Divider, Link, Stack, Typography } from "@mui/material";
+import { Button, Card, CardActionArea, Divider, Link, Stack, Typography } from "@mui/material";
 import { Story } from "@/types/story";
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from "react";
-import { useUserContext } from "@/context/userContext";
+import { DisplayCurrentPrompt } from "@/components/DisplayCurrentPrompt";
 
 export default function CurrentPrompt() {
     return (
@@ -28,26 +27,6 @@ export default function CurrentPrompt() {
                 </Stack>
             </main>
         </div>
-    )
-}
-
-function DisplayCurrentPrompt() {
-    const { currentPrompt } = useGroupContext();
-
-    return (
-        <Stack
-            direction="column"
-            alignItems="center"
-            spacing={1} // optional: adds vertical space between children
-        >
-
-            <Typography variant="h4">Prompt</Typography>
-
-            <Box component="section" sx={{ p: 2, border: '1px solid black' }}>
-                <Typography variant="h6">{currentPrompt?.prompt}</Typography>
-            </Box>
-
-        </Stack>
     )
 }
 

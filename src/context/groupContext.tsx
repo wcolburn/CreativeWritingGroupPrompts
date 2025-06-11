@@ -10,10 +10,11 @@ import { Story } from "@/types/story";
 
 import { useUserContext } from "./userContext";
 import { Prompt } from "@/types/prompt";
+import { PromptChooser } from "@/types/promptChooser";
 
 const GroupContext = createContext<{
     isVoting: boolean,
-    nextPromptChooser: string | null,
+    nextPromptChooser: PromptChooser | null,
     currentPrompt: Prompt | null,
     addNewStory: Function,
     stories: Story[] | null,
@@ -27,7 +28,7 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
     const user  = useUserContext();
 
     const [isVoting, setIsVoting] = useState<boolean>(false);
-    const [nextPromptChooser, setNextPromptChooser] = useState<string | null>(null);
+    const [nextPromptChooser, setNextPromptChooser] = useState<PromptChooser | null>(null);
     const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
     const [stories, setStories] = useState<Story[] | null>(null);
 
@@ -39,16 +40,13 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
     }, [])
 
     useEffect(()=>{
+        console.log(nextPromptChooser)
+        console.log(isVoting)
         if (isVoting && nextPromptChooser == null) {
             selectPromptChooser(setNextPromptChooser)
         }
     }, [isVoting])
 
-    // useEffect(()=>{
-    //     if (currentPrompt) {
-    //         writeCurrentPrompt(currentPrompt);
-    //     }
-    // }, [currentPrompt])
 
     function addNewStory(title: string, body: string, promptId: string) {
         writeNewStory(title, body, promptId, user);
@@ -164,7 +162,7 @@ function decideIfVoting(setIsVoting: Function) {
     const now = new Date(Date.now())
     const day = now.getDay()
     // If Saturday (6), then voting is open
-    if (day == 1)  {
+    if (day == 2)  {
         setIsVoting(true);
     } else {
         setIsVoting(false);
@@ -174,12 +172,18 @@ function decideIfVoting(setIsVoting: Function) {
 async function selectPromptChooser(setChooser: Function) {
     const querySnapshot = await getDocs(collection(db, "users"));
     if (!querySnapshot.empty) {
-        const users = querySnapshot.docs.map((doc) => doc.data() as AuthUser);
+        const users = querySnapshot.docs.map((doc) => doc.data());
         const randomIndex = Math.floor(Math.random() * users.length);
-        console.log("Random index: " + randomIndex)
-        const selectedUserId = users[randomIndex]?.uid;
-        setChooser(selectedUserId)
-        setPromptChooserInDb(selectedUserId);
+        const selectedUserId = users[randomIndex]?.id;
+        if (selectedUserId) {
+            console.log("Making!")
+            const chooser: PromptChooser = {
+                name: await fetchAuthorFromId(selectedUserId),
+                id: selectedUserId
+            }
+            setChooser(chooser)
+            setPromptChooserInDb(selectedUserId);
+        }
     }
 }
 
@@ -198,7 +202,11 @@ async function fetchPromptChooser(setChooser: Function) {
         const groupData = querySnapshot.docs[0].data();
         const currentChooser = groupData.promptChooser;
         if (currentChooser) {
-            setChooser(currentChooser);
+            const chooser: PromptChooser = {
+                name: await fetchAuthorFromId(currentChooser),
+                id: currentChooser
+            }
+            setChooser(chooser);
         }
     } else{
         setChooser(null);

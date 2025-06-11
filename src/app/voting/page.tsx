@@ -3,9 +3,10 @@
 import NavBar from "@/components/Navbar";
 import { useUserContext } from "@/context/userContext";
 import { useGroupContext } from "@/context/groupContext"
-import { Button, TextField, Typography } from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Prompt } from "@/types/prompt";
+import { DisplayCurrentPrompt } from "@/components/DisplayCurrentPrompt";
 
 export default function Voting() {
 
@@ -40,7 +41,7 @@ function NextPromptInputForm() {
     return (
         <div>
             {
-                user?.uid == nextPromptChooser ? (
+                user?.uid == nextPromptChooser?.id ? (
                         <div>
                             <Typography>You are the prompt chooser for this week! Please enter your prompt in the field below and click Submit.</Typography>
                             <TextField
@@ -52,7 +53,7 @@ function NextPromptInputForm() {
                                     setPrompt(event.target.value);
                                 }}
                             />
-                            <Button variant="contained" onClick={handleSubmit}>Submit Story</Button>
+                            <Button variant="contained" onClick={handleSubmit}>Submit Prompt</Button>
                         </div>
                 ) : (
                     <Typography>Hang tight! The prompt chooser for this week is working on it.</Typography>
@@ -64,14 +65,20 @@ function NextPromptInputForm() {
 
 function DisplayPrompt() {
 
-    const { nextPromptChooser, currentPrompt } = useGroupContext();
+    const { nextPromptChooser } = useGroupContext();
 
     return (
-        <div>
-            <Typography >Winner:</Typography>
-            <Typography>{currentPrompt?.prompt}</Typography>
-            <Typography>Next person to vote is: {nextPromptChooser}</Typography>
+        <Stack
+            direction="column"
+            alignItems="center"
+            spacing={4}
+            padding={5}
+        >
+            <Typography variant="h6">The winner is:</Typography>
+            <DisplayCurrentPrompt />
+            <Box height={10}/>
+            <Typography>Next person to vote is: {nextPromptChooser?.name}</Typography>
             <Typography>Come back Friday to vote on the next prompt!</Typography>
-        </div>
+        </Stack>
     )
 }
