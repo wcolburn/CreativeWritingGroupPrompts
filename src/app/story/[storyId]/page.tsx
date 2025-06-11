@@ -39,8 +39,12 @@ function DisplayStory(props: {story: Story}) {
             <header><NavBar /></header>
             <main>
                 <Stack>
-                    <Box marginX={50} marginY={5} sx={{ justifyContent: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <Typography variant='h6'>{props.story.title}</Typography>
+                    <Box marginX={50} marginTop={5} sx={{ justifyContent: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <Typography variant='h4'>{props.story.title}</Typography>
+                    </Box>
+
+                    <Box marginX={50} marginBottom={3} sx={{ justifyContent: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <Typography variant='h6'>By {props.story.author}</Typography>
                     </Box>
                     
                     <Box sx={{ whiteSpace: 'pre-line', p: 2 }}>

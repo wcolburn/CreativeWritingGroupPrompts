@@ -55,7 +55,7 @@ function SubmittedCurrentPromptStories() {
             {
                 stories ? (
                     stories.map((s: Story, i)=>
-                        <div onClick={() => handleStoryClick(s)} key={i}>
+                        <div onClick={() => handleStoryClick(s)} key={i} style={{padding: 10}}>
                             <Card>
                                 <CardActionArea sx={{ paddingX: 5, paddingY: 2}}>
                                     <Typography variant="h5">{s.title}</Typography>

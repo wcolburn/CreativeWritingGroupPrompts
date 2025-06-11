@@ -40,8 +40,6 @@ export function GroupContextProvider({ children } : { children: ReactNode}) {
     }, [])
 
     useEffect(()=>{
-        console.log(nextPromptChooser)
-        console.log(isVoting)
         if (isVoting && nextPromptChooser == null) {
             selectPromptChooser(setNextPromptChooser)
         }
@@ -85,7 +83,6 @@ export function useGroupContext() {
 }
 
 function writeNewStory(title: string, body: string, promptId: string, user: AuthUser | undefined) {
-
     const newStory = doc(collection(db, "stories"));
     setDoc(newStory, {
         id: uuid(),
@@ -117,7 +114,9 @@ async function fetchStoryById(storyId: string) {
 
     if (!querySnapshot.empty) {
         const story = querySnapshot.docs[0];
-        return story.data() as Story;
+        const storyData = story.data() as Story;
+        storyData.author = await fetchAuthorFromId(storyData.author)
+        return storyData
     } else {
         return null;
     }
