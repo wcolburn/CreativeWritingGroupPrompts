@@ -16,7 +16,7 @@ const GroupContext = createContext<{
     isVoting: boolean,
     nextPromptChooser: PromptChooser | null,
     currentPrompt: Prompt | null,
-    addNewStory: Function,
+    addNewStory: (title: string, body: string, promptId: string) => void,
     stories: Story[] | null,
     getAuthorFromId: Function,
     getStory: Function,
